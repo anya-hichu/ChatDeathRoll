@@ -66,7 +66,7 @@ public class ConfigWindow : Window
         }
 
         var colorNames = COLOR_NAMES_WITH_BLANK.ToArray();
-        if (ImGui.CollapsingHeader("Roll Button##roll", ImGuiTreeNodeFlags.DefaultOpen))
+        if (ImGui.CollapsingHeader("Roll Link##roll", ImGuiTreeNodeFlags.DefaultOpen))
         {
             ImGui.Indent();
             var rollText = Config.RollText;
@@ -89,7 +89,7 @@ public class ConfigWindow : Window
         {
             ImGui.Indent();
             var winText = Config.WinText;
-            if (ImGui.InputText("Content##winText", ref winText, ushort.MaxValue))
+            if (ImGui.InputText("Text##winText", ref winText, ushort.MaxValue))
             {
                 Config.WinText = winText;
                 Config.Save();

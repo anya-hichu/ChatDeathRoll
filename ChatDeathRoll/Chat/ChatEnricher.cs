@@ -6,6 +6,7 @@ using Dalamud.Plugin.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace ChatDeathRoll;
 public partial class ChatEnricher : IDisposable
 {
     private static readonly Range MESSAGE_RANDOM_DELAY = 20..40;
-    private static readonly int MIN_RANDOM_CHANNEL_CHAT_TYPE_VALUE = 1000;
+    private static readonly int MAPPED_CHAT_TYPE_MAX_VALUE = Enum.GetValues(typeof(XivChatType)).Cast<ushort>().Max();
 
     public enum RollType
     {
@@ -186,7 +187,7 @@ public partial class ChatEnricher : IDisposable
     private bool TryParseRollMessage(XivChatType chatType, SeString sender, SeString message, out string senderName, out RollType rollType, out int rollValue)
     {
         var chatTypeValue = (ushort)chatType;
-        if (chatTypeValue > MIN_RANDOM_CHANNEL_CHAT_TYPE_VALUE)
+        if (chatTypeValue > MAPPED_CHAT_TYPE_MAX_VALUE)
         {
             var match = RandomRollGeneratedRegex().Match(message.TextValue);
             if (match.Success)
