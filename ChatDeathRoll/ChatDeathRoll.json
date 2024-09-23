@@ -1,0 +1,14 @@
+{
+    "Author": "Anya Hichu",
+    "Name": "ChatDeathRoll",
+    "Punchline": "Zero trust death rolling helper",
+    "Description": "Provides link buttons in chat for death rolling",
+    "ApplicableVersion": "any",
+    "Tags": [
+        "deathroll",
+        "button",
+        "link",
+        "chat",
+        "helper"
+    ]
+}
