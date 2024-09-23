@@ -6,14 +6,22 @@ Installable using my custom repository (https://github.com/anya-hichu/DalamudPlu
 
 ## Screenshots
 
-### Player 1
+### Random
+#### Player 1
 ![chat](images/image1.png)
 
-### Player 2
+#### Player 2
 ![main](images/image2.png)
 
+### Dice
+#### Player 1
+![chat](images/image3.png)
+
+#### Player 2
+![main](images/image4.png)
+
 ### Config
-![config](images/image3.png)
+![config](images/image5.png)
 
 ## Commands
 
