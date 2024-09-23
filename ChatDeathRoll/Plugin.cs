@@ -18,6 +18,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static ISigScanner SigScanner { get; private set; } = null!;
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
     [PluginService] internal static IFramework Framework { get; private set; } = null!;
+    [PluginService] internal static IPluginLog PluginLog { get; private set; } = null!;
 
     private const string CommandName = "/chatdeathroll";
     private const string CommandHelpMessage = $"Available subcommands for {CommandName} are config, enable and disable";
@@ -48,7 +49,7 @@ public sealed class Plugin : IDalamudPlugin
 
         ChatLinks = new(Config, PluginInterface, Framework);
         ChatSender = new(Framework, new(SigScanner));
-        ChatEnricher = new(ChatGui, ChatLinks, ChatSender, ClientState, Config);
+        ChatEnricher = new(ChatGui, ChatLinks, ChatSender, ClientState, Config, PluginLog);
     }
 
     public void Dispose()

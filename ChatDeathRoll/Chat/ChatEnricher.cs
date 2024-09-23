@@ -15,8 +15,7 @@ namespace ChatDeathRoll;
 public partial class ChatEnricher : IDisposable
 {
     private static readonly Range MESSAGE_RANDOM_DELAY = 20..40;
-    private static readonly ushort OUTGOING_RANDOM_CHAT_TYPE_VALUE = 2122;
-    private static readonly ushort INCOMING_RANDOM_CHAT_TYPE_VALUE = 4170;
+    private static readonly int MIN_RANDOM_CHANNEL_CHAT_TYPE_VALUE = 1000;
 
     public enum RollType
     {
@@ -66,14 +65,16 @@ public partial class ChatEnricher : IDisposable
     private ChatSender ChatSender { get; init; }
     private IClientState ClientState { get; init; }
     private Config Config { get; init; }
+    private IPluginLog PluginLog { get; init; }
 
-    public ChatEnricher(IChatGui chatGui, ChatLinks chatLinks, ChatSender chatSender, IClientState clientState, Config config)
+    public ChatEnricher(IChatGui chatGui, ChatLinks chatLinks, ChatSender chatSender, IClientState clientState, Config config, IPluginLog pluginLog)
     {
         ChatGui = chatGui;
         ChatLinks = chatLinks;
         ChatSender = chatSender;
         ClientState = clientState;
         Config = config;
+        PluginLog = pluginLog;
 
         ChatGui.ChatMessage += OnChatMessage;
     }
@@ -109,6 +110,8 @@ public partial class ChatEnricher : IDisposable
                 {
                     isOwnMessage = true;
                 }
+
+                PluginLog.Debug($"Parsed {(isOwnMessage ? "own" : "other player's")} roll ({senderName}) with value {rollValue}");
 
                 if (rollValue == 1)
                 {
@@ -183,7 +186,7 @@ public partial class ChatEnricher : IDisposable
     private bool TryParseRollMessage(XivChatType chatType, SeString sender, SeString message, out string senderName, out RollType rollType, out int rollValue)
     {
         var chatTypeValue = (ushort)chatType;
-        if (chatTypeValue == INCOMING_RANDOM_CHAT_TYPE_VALUE || chatTypeValue == OUTGOING_RANDOM_CHAT_TYPE_VALUE)
+        if (chatTypeValue > MIN_RANDOM_CHANNEL_CHAT_TYPE_VALUE)
         {
             var match = RandomRollGeneratedRegex().Match(message.TextValue);
             if (match.Success)
