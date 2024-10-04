@@ -2,7 +2,7 @@
 
 Provides roll buttons in chat for death rolling and display results.
 
-Installable using my custom repository (https://github.com/anya-hichu/DalamudPluginRepo) or from compiled archives.
+Installable using my custom repository (instructions here: https://github.com/anya-hichu/DalamudPluginRepo) or from compiled archives.
 
 ## Screenshots
 
