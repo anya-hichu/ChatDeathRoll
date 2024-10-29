@@ -5,7 +5,6 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ChatDeathRoll.Windows;
 using Dalamud.Game;
-using Quack.Utils;
 using ChatDeathRoll.Chat;
 
 namespace ChatDeathRoll;

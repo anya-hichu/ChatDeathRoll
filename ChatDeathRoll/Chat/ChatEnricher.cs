@@ -28,10 +28,10 @@ public partial class ChatEnricher : IDisposable
     [GeneratedRegexAttribute(@"(?=\{[0-1]\})|(?<=\{[0-1]\})")]
     private static partial Regex MessageFormatSplitGeneratedRegex();
 
-    [GeneratedRegexAttribute(@"^Random! (.*?) rolls? a (\d+)(?: \(out of \d+\))?\.$")]
+    [GeneratedRegexAttribute(@"^Random! (.*?) rolls? a (\d+)(?: \(out of \d+\))?\.")]
     private static partial Regex RandomRollGeneratedRegex();
 
-    [GeneratedRegexAttribute(@"^Random! (?:\(\d+-\d+\) )?(\d+)$")]
+    [GeneratedRegexAttribute(@"^Random! (?:\(\d+-\d+\) )?(\d+)")]
     private static partial Regex DiceRollGeneratedRegex();
 
     private static readonly Dictionary<XivChatType, string> SWITCH_COMMAND_BY_CHAT_TYPE = new()
@@ -95,24 +95,9 @@ public partial class ChatEnricher : IDisposable
                 var messageBuilder = new SeStringBuilder();
                 var messageFormatParts = MessageFormatSplitGeneratedRegex().Split(Config.MessageFormat);
 
-                var localName = localPlayer.Name.TextValue;
+                var isOwnMessage = senderName == string.Empty || senderName == localPlayer.Name.TextValue;
 
-                bool isOwnMessage;
-                if (senderName.Split('@', 2).Length > 1)
-                {
-                    var crossWorldName = $"{localName}@{localPlayer.HomeWorld.GameData!.Name}";
-                    isOwnMessage = senderName == crossWorldName;
-                } 
-                else if (senderName != string.Empty)
-                {
-                    isOwnMessage = senderName == localName;
-                } 
-                else
-                {
-                    isOwnMessage = true;
-                }
-
-                PluginLog.Debug($"Parsed {(isOwnMessage ? "own" : "other player's")} roll ({senderName}) with value {rollValue}");
+                PluginLog.Debug($"Parsed {(isOwnMessage ? "own" : $"other player's ({senderName})")} roll with value {rollValue}");
 
                 if (rollValue == 1)
                 {
@@ -186,8 +171,7 @@ public partial class ChatEnricher : IDisposable
 
     private bool TryParseRollMessage(XivChatType chatType, SeString sender, SeString message, out string senderName, out RollType rollType, out int rollValue)
     {
-        var chatTypeValue = (ushort)chatType;
-        if (chatTypeValue > MAPPED_CHAT_TYPE_MAX_VALUE)
+        if ((ushort)chatType > MAPPED_CHAT_TYPE_MAX_VALUE)
         {
             var match = RandomRollGeneratedRegex().Match(message.TextValue);
             if (match.Success)
@@ -204,6 +188,8 @@ public partial class ChatEnricher : IDisposable
         else
         {
             var match = DiceRollGeneratedRegex().Match(message.TextValue);
+            PluginLog.Debug(message.TextValue);
+
             if (match.Success)
             {
                 senderName = GetSenderName(sender);
@@ -236,9 +222,9 @@ public partial class ChatEnricher : IDisposable
     private static string[] GenerateChatRollMessages(XivChatType chatType, SeString sender, RollType rollType, int rollValue)
     {
         var rollMessage = BuildRollMessage(rollType, rollValue);
-        if (SWITCH_COMMAND_BY_CHAT_TYPE.TryGetValue(chatType, out var swithChannelCommand))
+        if (SWITCH_COMMAND_BY_CHAT_TYPE.TryGetValue(chatType, out var switchChannelCommand))
         {
-            return [swithChannelCommand, rollMessage];
+            return [switchChannelCommand, rollMessage];
         } 
         else
         {
@@ -268,7 +254,15 @@ public partial class ChatEnricher : IDisposable
         {
             if (payload is PlayerPayload playerPayload)
             {
-                return $"{playerPayload.PlayerName}@{playerPayload.World.Name}";
+                return playerPayload.PlayerName;
+            }
+        }
+
+        foreach (var payload in sender.Payloads.Reverse<Payload>())
+        {
+            if (payload is TextPayload textPayload)
+            {
+                return textPayload.Text!;
             }
         }
 
