@@ -188,8 +188,6 @@ public partial class ChatEnricher : IDisposable
         else
         {
             var match = DiceRollGeneratedRegex().Match(message.TextValue);
-            PluginLog.Debug(message.TextValue);
-
             if (match.Success)
             {
                 senderName = GetSenderName(sender);
