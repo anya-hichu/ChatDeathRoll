@@ -204,7 +204,7 @@ public partial class ChatEnricher : IDisposable
         return false;
     }
 
-    private Action<Guid, SeString> BuildChatRollLinkHandler(XivChatType chatType, SeString sender, RollType rollType, int rollValue)
+    private Action<uint, SeString> BuildChatRollLinkHandler(XivChatType chatType, SeString sender, RollType rollType, int rollValue)
     {
         return (commandId, originalMessage) => {
             Task.Run(() =>

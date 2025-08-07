@@ -6,11 +6,23 @@ using System.Collections.Generic;
 
 namespace ChatDeathRoll.Chat;
 
-public class ChatLinks(Config config, IChatGui chatGui) : IDisposable
+public class ChatLinks : IDisposable
 {
-    private Config Config { get; init; } = config;
-    private IChatGui ChatGui { get; init; } = chatGui;
-    private Queue<Guid> CommandIds { get; init; } = [];
+    private Config Config { get; init; }
+    private IChatGui ChatGui { get; init; }
+    private IFramework Framework { get; init; }
+    private uint MonotonicCounter { get; set; } = 0;
+    private Queue<uint> CommandIds { get; init; } = [];
+
+    public ChatLinks(Config config, IChatGui chatGui, IFramework framework)
+    {
+        Config = config;
+        ChatGui = chatGui;
+        Framework = framework;
+
+        Framework.Update += OnFrameworkUpdate;
+    }
+
 
     public void Dispose()
     {
@@ -18,12 +30,19 @@ public class ChatLinks(Config config, IChatGui chatGui) : IDisposable
         {
             ChatGui.RemoveChatLinkHandler(commandId);
         }
+        Framework.Update -= OnFrameworkUpdate;
     }
 
-    public DalamudLinkPayload AddChatLinkHandler(Action<Guid, SeString> commandAction)
+    public void OnFrameworkUpdate(IFramework framework)
     {
-        var payload = ChatGui.AddChatLinkHandler(commandAction);
-        CommandIds.Enqueue(payload.CommandId);
+        MonotonicCounter++;
+    }
+
+    public DalamudLinkPayload AddChatLinkHandler(Action<uint, SeString> commandAction)
+    {
+        var commandId = MonotonicCounter;
+        var payload = ChatGui.AddChatLinkHandler(commandId, commandAction);
+        CommandIds.Enqueue(commandId);
         EnforceMaxActiveLinks();
         return payload;
     }
