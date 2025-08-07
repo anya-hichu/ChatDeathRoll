@@ -46,7 +46,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
         PluginInterface.UiBuilder.OpenMainUi += ToggleConfigUI;
 
-        ChatLinks = new(Config, PluginInterface, Framework);
+        ChatLinks = new(Config, ChatGui);
         ChatSender = new(Framework, new(SigScanner));
         ChatEnricher = new(ChatGui, ChatLinks, ChatSender, ClientState, Config, PluginLog);
     }

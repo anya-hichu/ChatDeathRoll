@@ -16,7 +16,7 @@ namespace ChatDeathRoll;
 public partial class ChatEnricher : IDisposable
 {
     private static readonly Range MESSAGE_RANDOM_DELAY = 20..40;
-    private static readonly int MAPPED_CHAT_TYPE_MAX_VALUE = Enum.GetValues(typeof(XivChatType)).Cast<ushort>().Max();
+    private static readonly int MAPPED_CHAT_TYPE_MAX_VALUE = Enum.GetValues<XivChatType>().Cast<ushort>().Max();
 
     public enum RollType
     {
@@ -33,6 +33,7 @@ public partial class ChatEnricher : IDisposable
 
     [GeneratedRegexAttribute(@"^Random! (?:\(\d+-\d+\) )?(\d+)")]
     private static partial Regex DiceRollGeneratedRegex();
+
 
     private static readonly Dictionary<XivChatType, string> SWITCH_COMMAND_BY_CHAT_TYPE = new()
     {
@@ -203,7 +204,7 @@ public partial class ChatEnricher : IDisposable
         return false;
     }
 
-    private Action<uint, SeString> BuildChatRollLinkHandler(XivChatType chatType, SeString sender, RollType rollType, int rollValue)
+    private Action<Guid, SeString> BuildChatRollLinkHandler(XivChatType chatType, SeString sender, RollType rollType, int rollValue)
     {
         return (commandId, originalMessage) => {
             Task.Run(() =>
