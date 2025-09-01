@@ -107,7 +107,7 @@ public class ConfigWindow : Window
         {
             ImGui.Indent();
             var loseText = Config.LoseText;
-            if (ImGui.InputText("Text##winText", ref loseText, ushort.MaxValue))
+            if (ImGui.InputText("Text##loseText", ref loseText, ushort.MaxValue))
             {
                 Config.LoseText = loseText;
                 Config.Save();
