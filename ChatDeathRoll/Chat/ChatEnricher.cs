@@ -65,16 +65,16 @@ public partial class ChatEnricher : IDisposable
     private IChatGui ChatGui { get; init; }
     private ChatLinks ChatLinks { get; init; }
     private ChatSender ChatSender { get; init; }
-    private IClientState ClientState { get; init; }
+    private IPlayerState PlayerState { get; init; }
     private Config Config { get; init; }
     private IPluginLog PluginLog { get; init; }
 
-    public ChatEnricher(IChatGui chatGui, ChatLinks chatLinks, ChatSender chatSender, IClientState clientState, Config config, IPluginLog pluginLog)
+    public ChatEnricher(IChatGui chatGui, ChatLinks chatLinks, ChatSender chatSender, IPlayerState playerState, Config config, IPluginLog pluginLog)
     {
         ChatGui = chatGui;
         ChatLinks = chatLinks;
         ChatSender = chatSender;
-        ClientState = clientState;
+        PlayerState = playerState;
         Config = config;
         PluginLog = pluginLog;
 
@@ -88,15 +88,14 @@ public partial class ChatEnricher : IDisposable
 
     private void OnChatMessage(XivChatType chatType, int a2, ref SeString sender, ref SeString message, ref bool isHandled)
     {
-        var localPlayer = ClientState.LocalPlayer;
-        if (Config.Enabled && Config.MessageFormatValid() && localPlayer != null)
+        if (Config.Enabled && Config.MessageFormatValid() && PlayerState.IsLoaded)
         {
             if (TryParseRollMessage(chatType, sender, message, out var senderName, out var rollType, out var rollValue))
             {
                 var messageBuilder = new SeStringBuilder();
                 var messageFormatParts = MessageFormatSplitGeneratedRegex().Split(Config.MessageFormat);
 
-                var isOwnMessage = senderName == string.Empty || senderName == localPlayer.Name.TextValue;
+                var isOwnMessage = senderName == string.Empty || senderName == PlayerState.CharacterName;
 
                 PluginLog.Debug($"Parsed {(isOwnMessage ? "own" : $"other player's ({senderName})")} roll with value {rollValue}");
 
@@ -180,7 +179,7 @@ public partial class ChatEnricher : IDisposable
                 // No sender for /random
                 var senderValue = match.Groups[1].Value;
 
-                senderName = senderValue == "You" ? ClientState.LocalPlayer!.Name.TextValue : senderValue;
+                senderName = senderValue == "You" ? PlayerState.CharacterName : senderValue;
                 rollType = RollType.Random;
                 rollValue = int.Parse(match.Groups[2].Value);
                 return true;
