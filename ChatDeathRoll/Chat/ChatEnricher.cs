@@ -1,4 +1,5 @@
 using ChatDeathRoll.Chat;
+using Dalamud.Game.Chat;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
@@ -86,11 +87,11 @@ public partial class ChatEnricher : IDisposable
         ChatGui.ChatMessage -= OnChatMessage;
     }
 
-    private void OnChatMessage(XivChatType chatType, int a2, ref SeString sender, ref SeString message, ref bool isHandled)
+    private void OnChatMessage(IHandleableChatMessage message)
     {
         if (Config.Enabled && Config.MessageFormatValid() && PlayerState.IsLoaded)
         {
-            if (TryParseRollMessage(chatType, sender, message, out var senderName, out var rollType, out var rollValue))
+            if (TryParseRollMessage(message.LogKind, message.Sender, message.Message, out var senderName, out var rollType, out var rollValue))
             {
                 var messageBuilder = new SeStringBuilder();
                 var messageFormatParts = MessageFormatSplitGeneratedRegex().Split(Config.MessageFormat);
@@ -108,7 +109,7 @@ public partial class ChatEnricher : IDisposable
                     {
                         if (part == "{0}")
                         {
-                            messageBuilder.Append(message);
+                            messageBuilder.Append(message.Message);
                         }
                         else if (part == "{1}")
                         {
@@ -129,7 +130,7 @@ public partial class ChatEnricher : IDisposable
                         }
                     }
 
-                    message = messageBuilder.Build();
+                    message.Message = messageBuilder.Build();
                 } 
                 else if (!isOwnMessage)
                 {
@@ -137,11 +138,11 @@ public partial class ChatEnricher : IDisposable
                     {
                         if (part == "{0}")
                         {
-                            messageBuilder.Append(message);
+                            messageBuilder.Append(message.Message);
                         }
                         else if (part == "{1}")
                         {
-                            var rollChatLinkHander = BuildChatRollLinkHandler(chatType, sender, rollType, rollValue);
+                            var rollChatLinkHander = BuildChatRollLinkHandler(message.LogKind, message.Sender, rollType, rollValue);
                             var rollLinkPayload = ChatLinks.AddChatLinkHandler(rollChatLinkHander);
 
                             messageBuilder.Add(rollLinkPayload);
@@ -163,7 +164,7 @@ public partial class ChatEnricher : IDisposable
                         }
                     }
 
-                    message = messageBuilder.Build();
+                    message.Message = messageBuilder.Build();
                 }
             }
         }
