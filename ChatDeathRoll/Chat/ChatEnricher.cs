@@ -172,7 +172,7 @@ public partial class ChatEnricher : IDisposable
 
     private bool TryParseRollMessage(XivChatType chatType, SeString sender, SeString message, out string senderName, out RollType rollType, out int rollValue)
     {
-        if ((ushort)chatType > MAPPED_CHAT_TYPE_MAX_VALUE)
+        if (chatType == XivChatType.RandomNumber)
         {
             var match = RandomRollGeneratedRegex().Match(message.TextValue);
             if (match.Success)
